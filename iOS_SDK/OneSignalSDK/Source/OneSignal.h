@@ -194,6 +194,9 @@ extern NSString * const kOSSettingsKeyInAppAlerts;
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
 
+/* Enable in-app purchasing tracking */
+extern NSString* const kOSSettingsKeyIAPTracking;
+
 /* iOS10+ - 
  Set notification's in-focus display option.
  Value must be an OSNotificationDisplayType enum

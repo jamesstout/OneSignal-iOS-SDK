@@ -72,6 +72,9 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 NSString* const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
 
+/* Enable in-app purchasing tracking */
+NSString* const kOSSettingsKeyIAPTracking = @"kOSSettingsKeyIAPTracking";
+
 /* Enable the default in-app alerts*/
 NSString* const kOSSettingsKeyInAppAlerts = @"kOSSettingsKeyInAppAlerts";
 
@@ -160,11 +163,11 @@ BOOL mShareLocation = YES;
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES}];
+	return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSettingsKeyIAPTracking : @YES}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSettingsKeyIAPTracking : @YES}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
@@ -287,8 +290,12 @@ BOOL mShareLocation = YES;
         coldStartFromTapOnNotification = YES;
 
     [self clearBadgeCount:false];
-    
-    if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
+	
+	BOOL trackIAP = YES;
+	if (settings[kOSSettingsKeyIAPTracking] && [settings[kOSSettingsKeyIAPTracking] isKindOfClass:[NSNumber class]])
+		trackIAP = [settings[kOSSettingsKeyIAPTracking] boolValue];
+
+    if ((trackIAP == YES) && (!trackIAPPurchase && [OneSignalTrackIAP canTrack]))
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
     
     #if XC8_AVAILABLE
