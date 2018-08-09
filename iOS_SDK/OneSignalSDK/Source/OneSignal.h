@@ -311,6 +311,9 @@ extern NSString * const kOSSettingsKeyInAppLaunchURL;
 /*Prompt user yes/no to open URL's from push notifications*/
 extern NSString * const kOSSSettingsKeyPromptBeforeOpeningPushURL;
 
+/* Enable in-app purchasing tracking */
+extern NSString* const kOSSettingsKeyIAPTracking;
+
 /* iOS10 +
  Set notification's in-focus display option.
  Value must be an OSNotificationDisplayType enum
@@ -347,6 +350,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 @property (class) OSNotificationDisplayType inFocusDisplayType;
 
++ (BOOL)trackIAP;
 + (NSString*)app_id;
 + (NSString*)sdk_version_raw;
 + (NSString*)sdk_semantic_version;

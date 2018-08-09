@@ -109,6 +109,9 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 /* Determine whether to automatically open push notification URL's or prompt user for permission */
 NSString* const kOSSSettingsKeyPromptBeforeOpeningPushURL = @"kOSSSettingsKeyPromptBeforeOpeningPushURL";
 
+/* Enable in-app purchasing tracking */
+NSString* const kOSSettingsKeyIAPTracking = @"kOSSettingsKeyIAPTracking";
+
 @implementation OSPermissionSubscriptionState
 - (NSString*)description {
     static NSString* format = @"<OSPermissionSubscriptionState:\npermissionStatus: %@,\nsubscriptionStatus: %@\n>";
@@ -167,6 +170,9 @@ static BOOL didCallDownloadParameters = false;
 static BOOL promptBeforeOpeningPushURLs = false;
 
 static BOOL delayedInitializationForPrivacyConsent = false;
+
+static BOOL trackIAP = YES;
+
 DelayedInitializationParameters *delayedInitParameters;
 
 //the iOS Native SDK will use the plist flag to enable privacy consent
@@ -316,6 +322,10 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return app_id;
 }
 
++ (BOOL)trackIAP {
+    return trackIAP;
+}
+
 + (NSString*)sdk_version_raw {
 	return ONESIGNAL_VERSION;
 }
@@ -382,11 +392,11 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO, kOSSettingsKeyIAPTracking : @YES}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO, kOSSettingsKeyIAPTracking : @YES}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
@@ -501,8 +511,11 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         coldStartFromTapOnNotification = YES;
 
     [self clearBadgeCount:false];
-    
-    if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
+        
+    if (settings[kOSSettingsKeyIAPTracking] && [settings[kOSSettingsKeyIAPTracking] isKindOfClass:[NSNumber class]])
+        trackIAP = [settings[kOSSettingsKeyIAPTracking] boolValue];
+
+    if ((trackIAP == YES) && (!trackIAPPurchase && [OneSignalTrackIAP canTrack]))
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
     
     if (NSClassFromString(@"UNUserNotificationCenter"))

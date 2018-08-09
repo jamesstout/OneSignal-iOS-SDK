@@ -343,6 +343,29 @@
     XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
 }
 
+- (void)testIAPTrackSettingsOnInit {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyIAPTracking: @NO}];
+    
+    XCTAssertEqual(OneSignal.trackIAP, NO);
+    
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyIAPTracking: @YES}];
+    
+    XCTAssertEqual(OneSignal.trackIAP, YES);
+    
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+
+    // test it defaults to YES
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    
+    XCTAssertEqual(OneSignal.trackIAP, YES);
+}
+
 - (void)testCallingMethodsBeforeInit {
     [self setCurrentNotificationPermission:true];
     
